@@ -1,11 +1,12 @@
+// web3 API를 통해 UI와 스마트 컨트랙트를 결합하는 코드
 App = {
   web3Provider: null,
   contracts: {},
   names: new Array(),
-  url: 'http://127.0.0.1:7545',
+  url: 'http://127.0.0.1:7545', //web 프로바이더 : IP 주소와 RPC 포트
   chairPerson:null,
   currentAccount:null,
-  init: function() {
+  init: function() {            //web3 개체를 가진 앱을 시작
     $.getJSON('../proposals.json', function(data) {
       var proposalsRow = $('#proposalsRow');
       var proposalTemplate = $('#proposalTemplate');
@@ -22,8 +23,8 @@ App = {
     return App.initWeb3();
   },
 
-  initWeb3: function() {
-        // Is there is an injected web3 instance?
+  initWeb3: function() {        //web3 프로바이터와 스마트 컨트랙트 설정
+    // Is there is an injected web3 instance?
     if (typeof web3 !== 'undefined') {
       App.web3Provider = web3.currentProvider;
     } else {
@@ -38,7 +39,7 @@ App = {
     return App.initContract();
   },
 
-  initContract: function() {
+  initContract: function() {      // 컨트랙트 객체 생성
       $.getJSON('Ballot.json', function(data) {
     // Get the necessary contract artifact file and instantiate it with truffle-contract
     var voteArtifact = data;
@@ -52,12 +53,14 @@ App = {
   });
   },
 
-  bindEvents: function() {
+  bindEvents: function() {      // UI 버튼을 스마트 컨트랙트 함수에 바인딩하는 핸들러
     $(document).on('click', '.btn-vote', App.handleVote);
     $(document).on('click', '#win-count', App.handleWinner);
     $(document).on('click', '#register', function(){ var ad = $('#enter_address').val(); App.handleRegister(ad); });
   },
 
+
+  // 드롭다운 주소 리스트를 위한 함수
   populateAddress : function(){
     new Web3(new Web3.providers.HttpProvider(App.url)).eth.getAccounts((err, accounts) => {
       jQuery.each(accounts,function(i){
@@ -69,6 +72,7 @@ App = {
     });
   },
 
+  // 의장 정보를 위한 함수
   getChairperson : function(){
     App.contracts.vote.deployed().then(function(instance) {
       return instance;
@@ -85,6 +89,7 @@ App = {
     })
   },
 
+  // Reg 버튼을 스마트 컨트랙트로 연결하는 핸들러 코드 
   handleRegister: function(addr){
 
     var voteInstance;
@@ -103,6 +108,7 @@ App = {
     });
 },
 
+// Vote 버튼을 스마트 컨트랙트로 연결하는 핸들러 코드 
   handleVote: function(event) {
     event.preventDefault();
     var proposalId = parseInt($(event.target).data('id'));
@@ -129,6 +135,7 @@ App = {
     });
   },
 
+  // Reqwinner 버튼을 스마트 컨트랙트로 연결하는 핸들러 코드 
   handleWinner : function() {
     console.log("To get winner");
     var voteInstance;
